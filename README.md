@@ -1,95 +1,78 @@
-# Tokenized Governance Contract
+# Anonymization Smart Contract
+
+
 
 ## Overview
-The **Tokenized Governance Contract** is a smart contract designed to facilitate decentralized decision-making using governance tokens. Token holders can propose and vote on changes to key parameters such as the interest rate and loan term. Proposals that receive majority support are executed automatically.
+
+The **Anonymization Smart Contract** is designed to facilitate secure and private data submission for research purposes. It utilizes **ring signatures** to anonymize data submissions while ensuring aggregation and verification of the collected information.
 
 ## Features
-- **Governance Token:** A fungible token is used for voting and decision-making.
-- **Proposal System:** Allows users to create, vote on, and execute governance proposals.
-- **Voting Mechanism:** Token-based voting system where each token represents voting power.
-- **Automatic Execution:** Approved proposals are executed to update governance parameters.
 
-## Contract Components
+- **Ring Signature-Based Anonymization:** Ensures privacy by allowing users to submit data without revealing their identity.
+- **Data Aggregation:** Collects and processes submitted data for research analysis.
+- **Role-Based Access Control:** Limits submission and research access to authorized users.
+- **Secure Researcher Management:** Only the contract owner can add or remove authorized researchers.
+- **Tamper-Resistant Data Storage:** Stores aggregated data securely on-chain.
 
-### Traits
-Defines the required traits for token functionality and governance operations.
+## Error Codes
 
-### Token Definitions
-- **`governance-token`**: A fungible token used for governance purposes.
+| Code | Description |
+|------|-------------|
+| `ERR-NOT-AUTHORIZED (u100)` | User is not authorized to perform the action. |
+| `ERR-INVALID-DATA (u101)` | Submitted data is invalid. |
+| `ERR-RING-SIZE-INVALID (u102)` | Provided ring size is invalid. |
 
-### Constants
-- **`contract-owner`**: The contract owner (set to the transaction sender).
-- **`proposal-duration`**: The number of blocks a proposal remains active (`10,000` blocks).
-- **Error Codes:**
-  - `ERR-NOT-AUTHORIZED` (100)
-  - `ERR-PROPOSAL-NOT-FOUND` (101)
-  - `ERR-PROPOSAL-EXPIRED` (102)
-  - `ERR-ALREADY-VOTED` (103)
-  - `ERR-PROPOSAL-NOT-ENDED` (104)
+## Data Structures
 
-### Data Variables
-- **`next-proposal-id`**: Stores the ID of the next proposal.
-- **`interest-rate`**: The current interest rate (default: `5.00%`).
-- **`loan-term`**: The duration of loans in days (default: `30` days).
+### Mappings
+- **`aggregated-data`**: Stores aggregated statistics for each category.
+- **`ring-signatures`**: Stores ring signatures for verification.
+- **`authorized-researchers`**: Tracks authorized researchers.
 
-### Data Maps
-- **`proposals`**: Stores governance proposals and their metadata.
-- **`votes`**: Tracks votes cast by users for each proposal.
+### Variables
+- **`submission-counter`**: Tracks the number of submissions.
+- **`contract-owner`**: Stores the contract owner.
 
-## Public Functions
-### `create-proposal`
-Creates a new governance proposal.
-#### Parameters:
-- `title`: Short description of the proposal (max 50 characters).
-- `description`: Detailed proposal description (max 500 characters).
-- `action`: Action type (`set-interest-rate`, `set-loan-term`).
-- `value`: The proposed new value.
-#### Returns:
-- The new proposal ID.
+## Functions
+### Public Functions
+#### `initialize-contract(researcher: principal) -> (ok true | err)`
+Initializes the contract and authorizes a researcher (only callable by the contract owner).
 
-### `vote`
-Allows token holders to vote on an active proposal.
-#### Parameters:
-- `proposal-id`: The ID of the proposal.
-- `vote-for`: Boolean (`true` to vote in favor, `false` to vote against).
-#### Conditions:
-- The proposal must be active.
-- The user must not have already voted.
-- Voting power is determined by the user's token balance.
+#### `submit-anonymous-data(category: string, value: uint, ring-size: uint, ring-signature: buff) -> (ok submission-id | err)`
+Submits anonymized data under a specified category using a ring signature.
 
-### `execute-proposal`
-Executes a proposal if it has passed.
-#### Parameters:
-- `proposal-id`: The ID of the proposal.
-#### Conditions:
-- The proposal must have ended.
-- The proposal must not have already been executed.
-- The majority must have voted in favor.
-- If the proposal is to change `interest-rate` or `loan-term`, it updates the respective parameter.
+#### `add-researcher(researcher: principal) -> (ok true | err)`
+Adds a new researcher to the authorized list (only callable by the contract owner).
 
-### `transfer`
-Transfers governance tokens between users.
-#### Parameters:
-- `amount`: The number of tokens to transfer.
-- `sender`: The address of the sender.
-- `recipient`: The address of the recipient.
+#### `remove-researcher(researcher: principal) -> (ok true | err)`
+Removes a researcher from the authorized list (only callable by the contract owner).
 
-## Read-Only Functions
-### `get-proposal`
-Retrieves proposal details by ID.
-#### Parameters:
-- `proposal-id`: The ID of the proposal.
+### Read-Only Functions
+#### `get-aggregated-data(category: string) -> (ok data | none)`
+Retrieves aggregated data for a given category.
 
-### `get-current-interest-rate`
-Returns the current interest rate.
+### Private Functions
+#### `generate-ring-members(size: uint) -> list`
+Generates a list of ring members for anonymity.
 
-### `get-current-loan-term`
-Returns the current loan term.
+#### `is-authorized(user: principal) -> bool`
+Checks if a user is authorized to submit data.
+
+## Usage
+
+1. **Initialize the contract** by adding an initial authorized researcher.
+2. **Submit anonymized data** under different research categories.
+3. **Retrieve aggregated data** for research analysis.
+4. **Manage researchers** to control data submission access.
 
 ## Security Considerations
-- **Authorization Checks:** Ensures that only eligible participants can vote and execute proposals.
-- **Immutable Records:** Proposal history and votes are stored on-chain.
-- **Protection Against Double Voting:** Each user can vote only once per proposal.
 
-## Conclusion
-The **Tokenized Governance Contract** empowers token holders to participate in decentralized governance. By leveraging blockchain technology, it ensures transparency, fairness, and efficiency in decision-making.
+- Only authorized researchers can submit and retrieve data.
+- Ring signatures help maintain anonymity while ensuring verifiable submissions.
+- Contract owner has exclusive control over researcher management.
+
+## License
+
+
+This project is open-source and available for modification under an appropriate open-source license.
+
