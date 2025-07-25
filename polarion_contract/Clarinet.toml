@@ -10,6 +10,11 @@ path = 'contracts/database_with_access_control_list.clar'
 clarity_version = 2
 epoch = 2.5
 
+[contracts.file_encryption]
+path = 'contracts/file_encryption.clar'
+clarity_version = 2
+epoch = 2.5
+
 [contracts.funding_research]
 path = 'contracts/funding_research.clar'
 clarity_version = 2
